@@ -1,10 +1,12 @@
 package name1_name2.view;
 
+import javafx.animation.TranslateTransition;
 import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
+import javafx.util.Duration;
 import name1_name2.ContainerTransferMain;
 import name1_name2.listeners.ContainerTransferUIEventListener;
 
@@ -50,15 +52,11 @@ public class ContainerTransferGUI {
 
     public ContainerTransferGUI(Stage primaryStage) {
         initParams();
-
-        restartButton.setLayoutX(WINDOW_WIDTH / 5.0);
-        restartButton.setLayoutY(WINDOW_HEIGHT / 10.0);
-        restartButton.setOnMouseClicked(mouseEvent -> {
-            restart();
-        });
+        drawSingleMoveButton();
+        drawRestartButton();
 
         Group root = new Group();
-        root.getChildren().addAll(drawButton(), restartButton, new Road(), new Ship(), new Truck());
+        root.getChildren().addAll(moveButton, restartButton, new Road(), new Ship(), new Truck());
         root.getChildren().addAll(drawColumnOfContainers());
 
         primaryStage.setTitle("ContainerTransfer");
@@ -68,10 +66,18 @@ public class ContainerTransferGUI {
         primaryStage.show();
     }
 
-    private Button drawButton() {
+    private void drawRestartButton() {
+        restartButton.setLayoutX(WINDOW_WIDTH / 5.0);
+        restartButton.setLayoutY(WINDOW_HEIGHT / 10.0);
+        restartButton.setOnMouseClicked(mouseEvent -> {
+            restart();
+        });
+    }
+
+    private void drawSingleMoveButton() {
         moveButton.setLayoutX(WINDOW_WIDTH / 10.0);
         moveButton.setLayoutY(WINDOW_HEIGHT / 10.0);
-        moveButton.setOnMouseClicked(mouseEvent -> {
+        moveButton.setOnAction(mouseEvent -> {
             if(selectedContainer != null){
                 if(containers.get(selectedColumn).size() == 4){
                     containers.forEach(s ->
@@ -80,8 +86,6 @@ public class ContainerTransferGUI {
                 listeners.forEach(l -> l.move(selectedContainer.getContainerId()));
             }
         });
-
-        return moveButton;
     }
 
     private List<Container> drawColumnOfContainers() {
@@ -117,7 +121,6 @@ public class ContainerTransferGUI {
             selectedContainer = container;
             selectedColumn = container.getColumn();
         });
-
         return container;
     }
 
@@ -130,8 +133,18 @@ public class ContainerTransferGUI {
         Container container = onRoad.pop();
         container.toBack();
         int lineCounter = columnsCounters[selectedColumn];
-        container.setX(LINES_X[selectedColumn]);
-        container.setY(CONTAINERS_Y + (4 - lineCounter) * CONTAINER_HEIGHT);
+
+        double roadX = LINES_X[selectedColumn];
+        double roadY = CONTAINERS_Y + (4 - lineCounter) * CONTAINER_HEIGHT;
+
+        container.toFront();
+
+        TranslateTransition translate = new TranslateTransition();
+        translate.setNode(container);
+        translate.setDuration(Duration.seconds(1));
+        translate.setToX(roadX - container.getX());
+        translate.setToY(roadY - container.getY());
+        translate.play();
         columnsCounters[selectedColumn]++;
     }
 
@@ -141,9 +154,16 @@ public class ContainerTransferGUI {
 
     public void putOnTruck() {
         double loadX = TRUCK_BODY_X + WINDOW_WIDTH / 100;
-        selectedContainer.setX(loadX);
         double loadY = WINDOW_HEIGHT - ROAD_HEIGHT - 2 * WHEEL_RADIUS - CONTAINER_HEIGHT;
-        selectedContainer.setY(loadY);
+        selectedContainer.toFront();
+
+        TranslateTransition translate = new TranslateTransition();
+        translate.setNode(selectedContainer);
+        translate.setDuration(Duration.seconds(1));
+        translate.setByX(loadX - selectedContainer.getX());
+        translate.setByY(loadY - selectedContainer.getY());
+        translate.play();
+
         selectedContainer.setStrokeWidth(2);
         selectedContainer.setStroke(Color.BLACK);
     }
@@ -154,8 +174,15 @@ public class ContainerTransferGUI {
         container.toFront();
         onRoad.push(container);
         double roadX = WINDOW_WIDTH - CONTAINER_WIDTH - WINDOW_WIDTH / 20;
-        container.setX(roadX);
-        container.setY(WINDOW_HEIGHT - ROAD_HEIGHT - CONTAINER_HEIGHT - (roadCounter * CONTAINER_HEIGHT));
+        double roadY = WINDOW_HEIGHT - ROAD_HEIGHT - CONTAINER_HEIGHT - (roadCounter * CONTAINER_HEIGHT);
+
+        TranslateTransition translate = new TranslateTransition();
+        translate.setNode(container);
+        translate.setDuration(Duration.seconds(1));
+        translate.setToX(roadX - container.getX());
+        translate.setByY(roadY - container.getY());
+        translate.play();
+
         roadCounter++;
     }
 
