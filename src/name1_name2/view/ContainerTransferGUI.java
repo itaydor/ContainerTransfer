@@ -2,6 +2,7 @@ package name1_name2.view;
 
 import javafx.animation.TranslateTransition;
 import javafx.scene.Group;
+import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.paint.Color;
@@ -14,6 +15,8 @@ import java.util.*;
 
 public class ContainerTransferGUI {
 
+    private final Ship ship;
+    private final Truck truck;
     private ArrayList<ContainerTransferUIEventListener> listeners;
 
     public static final double WINDOW_WIDTH = 1000;
@@ -54,9 +57,11 @@ public class ContainerTransferGUI {
         initParams();
         drawSingleMoveButton();
         drawRestartButton();
+        ship = new Ship();
+        truck = new Truck();
 
         Group root = new Group();
-        root.getChildren().addAll(moveButton, restartButton, new Road(), new Ship(), new Truck());
+        root.getChildren().addAll(moveButton, restartButton, new Road(), ship, truck);
         root.getChildren().addAll(drawColumnOfContainers());
 
         primaryStage.setTitle("ContainerTransfer");
@@ -64,6 +69,18 @@ public class ContainerTransferGUI {
         primaryStage.setScene(scene);
         primaryStage.setResizable(false);
         primaryStage.show();
+
+        moveItem(truck, 700, 0);
+    }
+
+    private void moveItem(Node node, double from, double to) {
+        TranslateTransition translate = new TranslateTransition();
+        translate.setNode(node);
+        translate.setDuration(Duration.millis(1500));
+        translate.setFromX(from);
+        translate.setToX(to);
+        translate.setToY(0);
+        translate.play();
     }
 
     private void drawRestartButton() {
@@ -150,6 +167,7 @@ public class ContainerTransferGUI {
 
     public void endTransfer() {
         moveButton.setDisable(true);
+        moveItem(truck, 0, -600);
     }
 
     public void putOnTruck() {
@@ -163,6 +181,8 @@ public class ContainerTransferGUI {
         translate.setByX(loadX - selectedContainer.getX());
         translate.setByY(loadY - selectedContainer.getY());
         translate.play();
+
+        truck.getChildren().add(selectedContainer);
 
         selectedContainer.setStrokeWidth(2);
         selectedContainer.setStroke(Color.BLACK);
