@@ -15,7 +15,7 @@ import java.util.*;
 
 public class ContainerTransferGUI {
 
-    private final Ship ship;
+    private final Group ship;
     private final Truck truck;
     private ArrayList<ContainerTransferUIEventListener> listeners;
 
@@ -57,12 +57,16 @@ public class ContainerTransferGUI {
         initParams();
         drawSingleMoveButton();
         drawRestartButton();
-        ship = new Ship();
+
+        List<Container> containers = drawColumnOfContainers();
+        ship = new Group();
+        ship.getChildren().add(new Ship());
+        ship.getChildren().addAll(containers);
         truck = new Truck();
 
         Group root = new Group();
         root.getChildren().addAll(moveButton, restartButton, new Road(), ship, truck);
-        root.getChildren().addAll(drawColumnOfContainers());
+//        root.getChildren().addAll(containers);
 
         primaryStage.setTitle("ContainerTransfer");
         Scene scene = new Scene(root, WINDOW_WIDTH, WINDOW_HEIGHT);
@@ -71,6 +75,7 @@ public class ContainerTransferGUI {
         primaryStage.show();
 
         moveItem(truck, 700, 0);
+        moveItem(ship, -700, 0);
     }
 
     private void moveItem(Node node, double from, double to) {
@@ -168,6 +173,7 @@ public class ContainerTransferGUI {
     public void endTransfer() {
         moveButton.setDisable(true);
         moveItem(truck, 0, -600);
+        moveItem(ship, 0, 1000);
     }
 
     public void putOnTruck() {
