@@ -5,6 +5,7 @@ import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
+import name1_name2.ContainerTransferMain;
 import name1_name2.listeners.ContainerTransferUIEventListener;
 
 import java.util.*;
@@ -27,12 +28,15 @@ public class ContainerTransferGUI {
 
     private Container selectedContainer = null;
     Button moveButton = new Button("Move");
+    Button restartButton = new Button("Restart");
 
     private final int[] columnsCounters = {4, 4, 4, 4};
     private int roadCounter;
     private int selectedColumn;
     private List<Stack<Container>> containers;
     private Stack<Container> onRoad;
+    private ContainerTransferMain containerTransferMain;
+    private Stage stage;
 
     private void initParams() {
         listeners = new ArrayList<>();
@@ -47,8 +51,14 @@ public class ContainerTransferGUI {
     public ContainerTransferGUI(Stage primaryStage) {
         initParams();
 
+        restartButton.setLayoutX(WINDOW_WIDTH / 5.0);
+        restartButton.setLayoutY(WINDOW_HEIGHT / 10.0);
+        restartButton.setOnMouseClicked(mouseEvent -> {
+            restart();
+        });
+
         Group root = new Group();
-        root.getChildren().addAll(drawButton(), new Road(), new Ship(), new Truck());
+        root.getChildren().addAll(drawButton(), restartButton, new Road(), new Ship(), new Truck());
         root.getChildren().addAll(drawColumnOfContainers());
 
         primaryStage.setTitle("ContainerTransfer");
@@ -147,5 +157,14 @@ public class ContainerTransferGUI {
         container.setX(roadX);
         container.setY(WINDOW_HEIGHT - ROAD_HEIGHT - CONTAINER_HEIGHT - (roadCounter * CONTAINER_HEIGHT));
         roadCounter++;
+    }
+
+    public void restart() {
+        containerTransferMain.start(stage);
+    }
+
+    public void setApplication(ContainerTransferMain containerTransferMain, Stage stage) {
+        this.containerTransferMain = containerTransferMain;
+        this.stage = stage;
     }
 }

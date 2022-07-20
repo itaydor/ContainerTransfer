@@ -13,6 +13,7 @@ public class ContainerTransferMain extends Application {
         ContainerTransferModel model = new ContainerTransferModel();
         ContainerTransferGUI view = new ContainerTransferGUI(stage);
         ContainerTransferController controller = new ContainerTransferController(view, model);
+        view.setApplication(this, stage);
     }
 
     public static void main(String[] args) {
